@@ -2,15 +2,20 @@ package com.example.poems;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.view.View;
+import android.widget.Button;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
 
 /*
 This is the detail page of the poem with the title, author, content, explanation
@@ -79,7 +84,7 @@ public class PoemDetailActivity extends AppCompatActivity {
     private void getPoemDetailById(int id) {
 
         try{
-            SQLiteOpenHelper databaseHelper = new DatabaseHelper(this);
+            SQLiteOpenHelper databaseHelper = new PoemDatabaseHelper(this);
             db = databaseHelper.getReadableDatabase();
             cursor = db.query("POEM", new String[]{"TITLE", "AUTHOR", "CONTENT", "DESCRIPTION"},"_id = ?", new String[]{Integer.toString(poemId)}, null, null, null);
             if (cursor.moveToFirst()) {

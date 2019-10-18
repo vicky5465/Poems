@@ -16,6 +16,8 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 //public class PoemGradeActivity extends AppCompatActivity {
 //
 //    @Override
