@@ -49,6 +49,7 @@ public class PoemGradeActivity extends ListActivity {
     private int poemId;
     private int poemTotal;
     private ArrayList<Integer> poemIdList = new ArrayList<Integer>();
+    private boolean poemIsRecited;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +61,7 @@ public class PoemGradeActivity extends ListActivity {
             SQLiteOpenHelper poemDatabaseHelper = new PoemDatabaseHelper(this);
             db = poemDatabaseHelper.getReadableDatabase();
             cursor = db.query("POEM",
-                    new String[] {"_id", "TITLE"}, "grade = ?", new String[] {Integer.toString(grade)},
+                    new String[] {"_id", "TITLE", "IS_PASS"}, "grade = ?", new String[] {Integer.toString(grade)},
                     null, null, "_id");
             while (cursor.moveToNext()) {
                 poemId = cursor.getInt(0);
@@ -82,10 +83,12 @@ public class PoemGradeActivity extends ListActivity {
         Intent intent = new Intent(PoemGradeActivity.this, PoemDetailActivity.class);
         if (cursor.moveToPosition(position)) {
             poemId = cursor.getInt(0);
+            poemIsRecited = (cursor.getInt(2) == 1);// 0 - false; 1 - true
         }
         intent.putExtra(PoemDetailActivity.POEM_ID, poemId);
         intent.putExtra(PoemDetailActivity.POEM_INDEX, position);
         intent.putIntegerArrayListExtra(PoemDetailActivity.POEM_ID_LIST, poemIdList);
+        intent.putExtra(PoemDetailActivity.POEM_IS_RECITED, poemIsRecited);
         startActivity(intent);
     }
 
