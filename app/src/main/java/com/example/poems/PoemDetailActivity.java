@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -18,6 +19,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.exoplayer2.PlaybackPreparer;
+import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.ui.PlayerControlView;
+import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
+
 import java.util.ArrayList;
 
 import javax.xml.transform.Result;
@@ -26,7 +37,8 @@ import javax.xml.transform.Result;
 This is the detail page of the poem with the title, author, content, explanation
  */
 
-public class PoemDetailActivity extends AppCompatActivity {
+public class PoemDetailActivity extends AppCompatActivity
+        implements View.OnClickListener, PlaybackPreparer, PlayerControlView.VisibilityListener{
 
     public static final String POEM_ID = "poemId";
     public static final String POEM_INDEX = "poemIndex";
@@ -42,12 +54,14 @@ public class PoemDetailActivity extends AppCompatActivity {
     private boolean poemIsRecited;
     private Button recitedButton;
     private ImageView recitedImage;
+    private PlayerView playerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_poem_detail);
         poemId = (Integer) getIntent().getExtras().get(POEM_ID);
+        System.out.println("---------" + poemId);
         getPoemDetailById(poemId);
         poemIndex = (Integer) getIntent().getExtras().get(POEM_INDEX);
         poemIdList = getIntent().getIntegerArrayListExtra(POEM_ID_LIST);
@@ -71,6 +85,29 @@ public class PoemDetailActivity extends AppCompatActivity {
             recitedButton.setVisibility(View.VISIBLE);
             recitedImage = findViewById(R.id.img_recited);
             recitedImage.setVisibility(View.INVISIBLE);
+        }
+
+        playerView = findViewById(R.id.player_view);
+        playerView.setVisibility(View.INVISIBLE);
+        // for poems with audio
+        if (1 == poemId) {
+//            playerView = findViewById(R.id.player_view);
+            playerView.setVisibility(View.VISIBLE);
+            playerView.setControllerVisibilityListener(this);
+            Uri mp4VideoUri = Uri.parse("asset:///jingyesi.m4a");
+            DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this,
+                    Util.getUserAgent(this, "Poems"));
+            // This is the MediaSource representing the media to be played.
+            MediaSource videoSource =
+                    new ProgressiveMediaSource.Factory(dataSourceFactory)
+                            .createMediaSource(mp4VideoUri);
+
+
+            SimpleExoPlayer player = new SimpleExoPlayer.Builder(this).build();
+            playerView.setPlayer(player);
+            playerView.setPlaybackPreparer(this);
+            // Prepare the player with the source.
+            player.prepare(videoSource);
         }
        
 
@@ -189,6 +226,79 @@ public class PoemDetailActivity extends AppCompatActivity {
 //
 //    }
 
+    @Override
+    public void preparePlayback() {
+
+    }
+
+    @Override
+    public void onVisibilityChange(int visibility) {
+
+    }
+
+    @Override
+    public void onClick(View view) {
+    }
+
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+//        releasePlayer();
+//        releaseAdsLoader();
+//        clearStartPosition();
+        setIntent(intent);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (Util.SDK_INT > 23) {
+//            initializePlayer();
+            if (playerView != null) {
+                playerView.onResume();
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (Util.SDK_INT <= 23 ) {
+//            initializePlayer();
+            if (playerView != null) {
+                playerView.onResume();
+            }
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (Util.SDK_INT <= 23) {
+            if (playerView != null) {
+                playerView.onPause();
+            }
+//            releasePlayer();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (Util.SDK_INT > 23) {
+            if (playerView != null) {
+                playerView.onPause();
+            }
+//            releasePlayer();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+//        releaseAdsLoader();
+    }
 }
 
 

@@ -64,11 +64,17 @@
             android:src="@drawable/completed" />
     </LinearLayout>
 
+    <com.google.android.exoplayer2.ui.PlayerView
+        android:id="@+id/player_view"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginTop="20dp" />
+
     <TextView
         android:id="@+id/authorDetail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="50dp"
         android:gravity="center"
         android:textSize="15dp"
         android:textAppearance="?android:attr/textAppearanceLarge"
